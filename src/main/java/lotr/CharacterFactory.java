@@ -1,8 +1,11 @@
 package lotr;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+
+import org.reflections.Reflections;
 
 import lotr.lotr.Character;
 
@@ -12,8 +15,12 @@ public class CharacterFactory {
     @SneakyThrows
     public static Character createCharacter() {
         Random random = new Random();
-        List<Class<? extends lotr.lotr.Character>> characters = Arrays.asList(
-            Hobbit.class, Elf.class, King.class, Knight.class);
-        return characters.get(random.nextInt(characters.size())).newInstance();
+
+        // reflecting a src/main/java/lotr package
+        Reflections reflections = new Reflections("lotr");
+
+        Set<Class<? extends Character>> subTypes = reflections.getSubTypesOf(Character.class);
+        List<Class<? extends Character>> characters = new ArrayList<>(subTypes);
+        return characters.get(random.nextInt(characters.size())).getDeclaredConstructor().newInstance();
     }
 }
